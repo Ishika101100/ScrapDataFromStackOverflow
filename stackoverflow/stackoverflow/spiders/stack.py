@@ -107,13 +107,16 @@ class Stack(scrapy.Spider):
         for qc in questionComments:
             stack_question_comment_id = qc.css('.js-comment::attr(data-comment-id)').extract_first()
             comment_content = qc.css('.comment-copy::text').extract()
-            user_id = qc.css('a.comment-user.owner::attr(href)').extract_first()
+            try:
+                user_id = qc.css('.comment-user::attr(href)').extract()
+            except Exception:
+                user_id = None
 
             comment = {
                 'stack_question_id': stackoverflow['stack_question_id'],
                 'stack_question_comment_id': stack_question_comment_id,
                 'comment_content': comment_content[0] if len(comment_content) > 0 else ' ',
-                'user_id': user_id
+                'user_id': user_id[0].split("/")[2]
             }
 
             q_comments.append(comment)
@@ -126,7 +129,11 @@ class Stack(scrapy.Spider):
             date_posted = a.css('.relativetime::attr(title)').extract()
             upvote = a.css('.fs-title::text').extract()
             accepted = a.css('div.d-none::attr(title)').get(default='Accepted')
-            stack_user_id = a.css('.user-details a::attr(href)').extract_first().split("/")[2]
+            try:
+                stack_user_id = a.css('.user-details a::attr(href)').extract_first().split("/")[2]
+            except Exception:
+                stack_user_id = None
+
             user_name = a.css('.user-details a::text').extract()
             user_reputation_score = a.css('.reputation-score::text').extract()
 
@@ -140,13 +147,16 @@ class Stack(scrapy.Spider):
             for ac in answerComments:
                 stack_answer_comment_id = ac.css('.js-comment::attr(data-comment-id)').extract_first()
                 comment_content = ac.css('.comment-copy::text').extract()
-                user_id = ac.css('a.comment-user.owner::attr(href)').extract_first()
+                try:
+                    user_id = ac.css('.comment-user::attr(href)').extract()
+                except Exception:
+                    user_id = None
 
                 comment = {
                     'stack_answer_id': stack_answer_id,
                     'stack_answer_comment_id': stack_answer_comment_id,
                     'comment_content': comment_content[0] if len(comment_content) > 0 else ' ',
-                    'user_id': user_id
+                    'user_id': user_id[0].split("/")[2]
                 }
 
                 a_comments.append(comment)
