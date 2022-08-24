@@ -33,9 +33,6 @@ class User(Base):
     stack_user_id = Column('stack_user_id', Text())
     name = Column('name', String(50))
     reputation_score = Column('reputation_score', Text())
-    gold_badges = Column('gold_badages', Text())
-    silver_badges = Column('silver_badages', Text())
-    bronze_badges = Column('bronze_badages', Text())
     questions = relationship('Question', backref='user')  # One user to many Questions
     answers = relationship('Answer', backref='user')  # One user to many Answers
 

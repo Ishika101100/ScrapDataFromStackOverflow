@@ -80,9 +80,6 @@ class StackoverflowPipeline:
                 answer_user.stack_user_id = ans['user']['stack_user_id']
                 answer_user.name = ans['user']['name']
                 answer_user.reputation_score = ans['user']['reputation_score']
-                answer_user.gold_badges = ans['user']['gold_badges']
-                answer_user.silver_badges = ans['user']['silver_badges']
-                answer_user.bronze_badges = ans['user']['bronze_badges']
 
                 answer_user_exist = session.query(User).filter_by(stack_user_id=answer_user.stack_user_id).first()
                 if answer_user_exist is not None:  # Check the user exists or not !!!

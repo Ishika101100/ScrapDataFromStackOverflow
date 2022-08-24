@@ -42,6 +42,7 @@ class Stack(scrapy.Spider):
                 "/")[2]
             question_title = q.css(
                 "div.s-post-summary--content h3.s-post-summary--content-title a.s-link::text").extract_first()
+
             question_content = q.css(
                 "div.s-post-summary--content div.s-post-summary--content-excerpt::text").extract_first().strip('/r/n ')
             question_url = q.css(
@@ -63,6 +64,7 @@ class Stack(scrapy.Spider):
                 'div.s-post-summary--content div.s-post-summary--meta div.s-user-card a.s-avatar div.gravatar-wrapper-16::attr(data-user-id)').extract_first()
             user_name = q.css(
                 'div.s-post-summary--content div.s-post-summary--meta div.s-user-card div.s-user-card--info div.s-user-card--link a.flex--item::text').extract_first()
+
             user_reputation_score = q.css(
                 "div.s-post-summary--content div.s-post-summary--meta div.s-user-card div.s-user-card--info ul.s-user-card--awards li.s-user-card--rep span.todo-no-class-here::text").extract()
 
@@ -105,13 +107,13 @@ class Stack(scrapy.Spider):
         for qc in questionComments:
             stack_question_comment_id = qc.css('.js-comment::attr(data-comment-id)').extract_first()
             comment_content = qc.css('.comment-copy::text').extract()
-            user_id = qc.css('.comment-user::attr(href)').extract_first().split("/")[2]
+            user_id = qc.css('a.comment-user.owner::attr(href)').extract_first()
 
             comment = {
                 'stack_question_id': stackoverflow['stack_question_id'],
                 'stack_question_comment_id': stack_question_comment_id,
                 'comment_content': comment_content[0] if len(comment_content) > 0 else ' ',
-                'user_id': user_id[0] if len(user_id) > 0 else ''
+                'user_id': user_id
             }
 
             q_comments.append(comment)
@@ -123,48 +125,37 @@ class Stack(scrapy.Spider):
             answer_content = a.css('.js-post-body *::text').getall()
             date_posted = a.css('.relativetime::attr(title)').extract()
             upvote = a.css('.fs-title::text').extract()
-            accepted = a.css('div.mtn8::attr(aria-label)').extract()
-
+            accepted = a.css('div.d-none::attr(title)').get(default='Accepted')
             stack_user_id = a.css('.user-details a::attr(href)').extract_first().split("/")[2]
             user_name = a.css('.user-details a::text').extract()
             user_reputation_score = a.css('.reputation-score::text').extract()
-            user_gold_badges = a.css('.badge1+ .badgecount::text').extract()
-            user_silver_badges = a.css('.badge2+ .badgecount::text').extract()
-            user_bronze_badges = a.css('.badge3+ .badgecount::text').extract()
 
             user = {
                 'stack_user_id': stack_user_id,
                 'name': user_name[0],
-                'reputation_score': (user_reputation_score[0]) if len(user_reputation_score) > 0 else 0,
-                'gold_badges': (user_gold_badges[0]) if len(user_gold_badges) > 0 else 0,
-                'silver_badges': (user_silver_badges[0]) if len(user_silver_badges) > 0 else 0,
-                'bronze_badges': (user_bronze_badges[0]) if len(user_bronze_badges) > 0 else 0
-
+                'reputation_score': (user_reputation_score[0]) if len(user_reputation_score) > 0 else 0
             }
-
             answerComments = a.css('.js-comment')
             a_comments = []
-
             for ac in answerComments:
                 stack_answer_comment_id = ac.css('.js-comment::attr(data-comment-id)').extract_first()
                 comment_content = ac.css('.comment-copy::text').extract()
-                user_id = ac.css('.comment-user::attr(href)').extract()
+                user_id = ac.css('a.comment-user.owner::attr(href)').extract_first()
 
                 comment = {
                     'stack_answer_id': stack_answer_id,
                     'stack_answer_comment_id': stack_answer_comment_id,
                     'comment_content': comment_content[0] if len(comment_content) > 0 else ' ',
-                    'user_id': user_id[0] if len(user_id) > 0 else ''
+                    'user_id': user_id
                 }
 
                 a_comments.append(comment)
-
             answer = {
                 'stack_answer_id': stack_answer_id,
                 'answer_content': " ".join(answer_content),
                 'date_posted': date_posted[0],
                 'upvote': (upvote[0]),
-                'accepted': "YES" if len(accepted) == 0 else "NO",
+                'accepted': "Yes" if "Accepted" in accepted else "No",
                 'user': user,
                 'answer_comments': a_comments
             }
@@ -173,7 +164,6 @@ class Stack(scrapy.Spider):
 
         stackoverflow['answers'] = answers
         stackoverflow['question_comments'] = q_comments
-
         item['stack_question_id'] = stackoverflow['stack_question_id']
         item['question_title'] = stackoverflow['question_title']
         item['question_content'] = stackoverflow['question_content']
