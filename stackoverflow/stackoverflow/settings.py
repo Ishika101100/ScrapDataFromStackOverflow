@@ -6,13 +6,14 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import os
 
 BOT_NAME = 'stackoverflow'
 
 SPIDER_MODULES = ['stackoverflow.spiders']
 NEWSPIDER_MODULE = 'stackoverflow.spiders'
 
-CONNECTION_STRING = "postgresql://stackover_user:password@localhost:5432/stackover_db"
+CONNECTION_STRING = os.environ.get('CONNECTION_STRING')
 
 # # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36'
