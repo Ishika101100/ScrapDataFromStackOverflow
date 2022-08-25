@@ -1,4 +1,5 @@
 import scrapy
+import csv
 
 from ..items import StackoverflowItem
 
@@ -14,10 +15,14 @@ class Stack(scrapy.Spider):
         Spider will begin to crawl stackoverflow website from the given input tag
         :return: request data from stackoverflow of the provided url
         """
-        with open('tags', 'r') as file_data:
-            all_tags = file_data.read()
+        with open('tags.csv', 'r') as file_data:
+            dict_reader = csv.reader(file_data)
+            list_of_dict = list(dict_reader)
+            final_tags=[]
+            for i in range(len(list_of_dict)):
+                final_tags.append(list_of_dict[i][0])
             tag_input = input("Enter tag name :")
-            if tag_input in all_tags:
+            if tag_input in final_tags:
                 try:
                     page_input = int(input("Enter number of page :"))
                     for url in range(page_input):
